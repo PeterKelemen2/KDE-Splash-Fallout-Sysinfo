@@ -61,7 +61,7 @@ def display_terminal(text):
     x_position = (width - first_line_width) // 2
 
     cv2.imshow("Terminal", image)
-    cv2.moveWindow("Terminal", 1920 + (1920 - width) // 2, 100)
+    # cv2.moveWindow("Terminal", 1920 + (1920 - width) // 2, 100)
 
     for i, part in enumerate(text_list):
         # Clear the image
