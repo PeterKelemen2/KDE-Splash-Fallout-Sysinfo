@@ -14,6 +14,7 @@ class Config:
     FONT_PATH: str = "FSEX302.ttf"
     FONT_SIZE: int = 30
     FONT_COLOR: tuple = (0, 255, 0)
+    LINE_SPACE: int = 45
     DURATION_TEXT: int = 2
     DURATION_CURSOR: int = 2
     EFFECT_WARP_INTENSITY: float = 0.15
