@@ -7,6 +7,7 @@ class Config:
     RES_X: int = 1920
     RES_Y: int = 1080
     FPS: int = 30
+    GIF_QUALITY: int = 50
     TAB: bool = True
     TAB_LENGTH: int = 2
     FONT_NAME: str = ""

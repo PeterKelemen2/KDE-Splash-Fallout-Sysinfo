@@ -182,8 +182,8 @@ def display_terminal(text):
         append_images=pil_frames[1:],
         duration=1000 / fps,  # Frame duration
         loop=0,  # Loop the GIF once
-        optimize=True,  # Optimize the image
-        quality=50,  # Set quality (lower value = smaller file size, but lower quality)
+        optimize=True,
+        quality=config.GIF_QUALITY, 
     )
     print("Saving finished!")
 
