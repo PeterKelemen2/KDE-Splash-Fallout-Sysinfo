@@ -42,7 +42,8 @@ def get_frame(text, pil_image, x_pos, y_pos, font):
     scanlined_image = effects.apply_scanlines_with_noise(
         warped_image,
         scanline_intensity=config.EFFECT_SCANLINE_INTENSITY,
-        noise_intensity=config.EFFECT_NOISE_INTENSITY
+        noise_intensity=config.EFFECT_NOISE_INTENSITY,
+        noise_type=config.EFFECT_NOISE_TYPE
     )
 
     return scanlined_image

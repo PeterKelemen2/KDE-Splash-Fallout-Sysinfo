@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from gif_config import NoiseType
 from PIL import Image, ImageDraw, ImageFilter
 
 
@@ -51,16 +52,33 @@ def apply_scanlines(image, intensity=0.3):
     return scanline_effect.astype(np.uint8)
 
 
-def apply_scanlines_with_noise(image, scanline_intensity=0.3, noise_intensity=0.03):
-    """Applies CRT-style scanlines with noise to an image."""
+def apply_scanlines_with_noise(image, scanline_intensity=0.3, noise_intensity=0.03, noise_scale=2.5, noise_type = NoiseType.MONOCHROME):
+    """
+    Applies CRT-style scanlines with noise to an image.
+
+    noise_scale: larger values = bigger noise particles, can be float
+    """
     height, width = image.shape[:2]
 
     # Create a scanline pattern (alternating dark lines)
     scanline = np.ones((height, width, 3), dtype=np.float32)
     scanline[::2] *= 1 - scanline_intensity  # Darken every other row
 
-    # Generate random noise
-    noise = np.random.normal(0, noise_intensity, (height, width, 3)).astype(np.float32)
+    # Generate low-res noise
+    small_h = max(1, int(round(height / noise_scale)))
+    small_w = max(1, int(round(width / noise_scale)))
+    
+    if noise_type == NoiseType.COLOR:
+        noise_small = np.random.normal(0, noise_intensity, (small_h, small_w, 3)).astype(np.float32)
+    elif noise_type == NoiseType.MONOCHROME:
+        # Single channel noise, then broadcast to RGB
+        mono_noise = np.random.normal(0, noise_intensity, (small_h, small_w, 1)).astype(np.float32)
+        noise_small = np.repeat(mono_noise, 3, axis=2)
+    else:
+        raise ValueError(f"Unknown noise_type: {noise_type}")
+
+    # Upscale noise to full image size
+    noise = cv2.resize(noise_small, (width, height), interpolation=cv2.INTER_NEAREST)
 
     # Normalize image for blending
     image = image.astype(np.float32) / 255.0
@@ -69,11 +87,10 @@ def apply_scanlines_with_noise(image, scanline_intensity=0.3, noise_intensity=0.
     scanline_effect = image * scanline
 
     # Apply noise
-    noisy_image = np.clip(
-        scanline_effect + noise, 0, 1
-    )  # Ensure values stay in valid range
+    noisy_image = np.clip(scanline_effect + noise, 0, 1)
 
     return (noisy_image * 255).astype(np.uint8)
+
 
 def apply_glow(draw_image, text, position, font, glow_color=(0, 255, 0, 128), intensity=3):
     """Draws glowing text by layering blurred text."""

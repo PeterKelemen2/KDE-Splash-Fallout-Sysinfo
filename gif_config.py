@@ -2,6 +2,12 @@ import json
 from dataclasses import asdict, dataclass
 import os
 
+from enum import Enum
+
+class NoiseType(Enum):
+    COLOR = 1
+    MONOCHROME = 2
+
 @dataclass
 class Config:
     RES_X: int = 1920
@@ -12,14 +18,16 @@ class Config:
     TAB_LENGTH: int = 2
     FONT_NAME: str = ""
     FONT_PATH: str = "FSEX302.ttf"
-    FONT_SIZE: int = 30
+    FONT_SIZE: int = 50
     FONT_COLOR: tuple = (0, 255, 0)
-    LINE_SPACE: int = 45
+    LINE_SPACE: int = 65
     DURATION_TEXT: int = 2
     DURATION_CURSOR: int = 2
     EFFECT_WARP_INTENSITY: float = 0.15
     EFFECT_SCANLINE_INTENSITY: float = 0.3
     EFFECT_NOISE_INTENSITY: float = 0.03
+    EFFECT_NOISE_SCALE: float = 1.5
+    EFFECT_NOISE_TYPE: NoiseType = NoiseType.COLOR
     EFFECT_GLOW_INTENSITY: int = 3
     OVERRIDE_LINUX: str = ""
     OVERRIDE_KERNEL: str = ""
@@ -34,6 +42,10 @@ class Config:
     def save_to_json(self, filename="config.json"):
         # Convert the dataclass instance to a dictionary
         config_dict = asdict(self)
+
+        for key, value in config_dict.items():
+            if isinstance(value, Enum):
+                config_dict[key] = value.name
 
         # Write the dictionary to a JSON file
         with open(filename, 'w') as json_file:
@@ -53,6 +65,13 @@ class Config:
         with open(filename, 'r') as json_file:
             config_dict = json.load(json_file)
         
+        # Convert JSON strings back to enums
+        for field_name, field_def in cls.__dataclass_fields__.items():
+            field_type = field_def.type
+            if isinstance(field_type, type) and issubclass(field_type, Enum) and field_name in config_dict:
+            # Convert the string back to enum
+                config_dict[field_name] = field_type[config_dict[field_name]]
+
         # Convert the dictionary back to a dataclass instance
         return cls(**config_dict)
     
